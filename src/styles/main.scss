@@ -1,0 +1,112 @@
+// ============================================================================
+// MAIN STYLES
+// ============================================================================
+
+@import "./variables";
+@import "./mixins";
+
+// CSS Reset & Base Styles
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @include smooth-scroll;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+        "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    color: $text-dark;
+    background: $bg-light;
+    min-height: 100vh;
+}
+
+// Typography
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+p {
+    margin-bottom: 0;
+}
+
+// Buttons
+button {
+    font-family: inherit;
+}
+
+// Links
+a {
+    color: $primary-color;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Focus styles for accessibility
+:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+}
+
+// App container
+#app {
+    min-height: 100vh;
+}
+
+// Utility classes
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+// Transitions
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity $transition-normal;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: transform $transition-normal, opacity $transition-normal;
+}
+
+.slide-enter-from {
+    transform: translateX(20px);
+    opacity: 0;
+}
+
+.slide-leave-to {
+    transform: translateX(-20px);
+    opacity: 0;
+}
