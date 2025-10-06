@@ -179,7 +179,7 @@ const scrollToNextQuestion = () => {
                     top: offsetPosition,
                     behavior: "smooth",
                 });
-            }, 150);
+            }, 650);
         } else {
             setTimeout(() => {
                 const actionsElement =
