@@ -1,5 +1,5 @@
 services:
-    app:
+    start_tec_senai_quiz:
         image: node:18-alpine
         container_name: start-tec-senai-app
         working_dir: /app

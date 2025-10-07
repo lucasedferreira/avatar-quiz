@@ -246,7 +246,7 @@ const handleStart = () => {
                 setTimeout(async () => {
                     await quizStore.initializeQuiz();
                     await quizStore.startQuiz({ name: studentName.value });
-                }, 1500);
+                }, 1000);
             },
         }
     );
