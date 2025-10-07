@@ -9,5 +9,11 @@ export default defineConfig({
                 additionalData: `@import "./src/styles/_variables.scss";`
             }
         }
+    },
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
+        allowedHosts: ['.manchae.com', 'start-tec-senai.manchae.com']
     }
 })
