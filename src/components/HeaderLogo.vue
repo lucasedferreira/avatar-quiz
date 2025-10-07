@@ -40,10 +40,10 @@
     }
 
     &__title {
-        font-family: "Arial", sans-serif;
+        font-family: 'Arial', sans-serif;
         font-size: 1rem;
         font-weight: bold;
-        color: #0c2d6a;
+        color: #0C2D6A;
         text-transform: uppercase;
         letter-spacing: 3px;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
@@ -56,12 +56,7 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                #0c2d6a,
-                transparent
-            );
+            background: linear-gradient(90deg, transparent, #0C2D6A, transparent);
             animation: shimmer 2.5s ease-in-out infinite;
         }
     }
@@ -87,8 +82,7 @@
 }
 
 @keyframes shimmer {
-    0%,
-    100% {
+    0%, 100% {
         opacity: 0.5;
     }
     50% {
