@@ -17,10 +17,10 @@
 
                 <h2 class="result__avatar-name">{{ avatar.name }}</h2>
                 <p class="result__avatar-description">
-                    {{ avatar.longDescription }}
+                    {{ avatar.description }}
                 </p>
 
-                <div class="result__avatar-tags">
+                <!-- <div class="result__avatar-tags">
                     <span
                         v-for="tag in avatar.tags.split(', ')"
                         :key="tag"
@@ -28,7 +28,7 @@
                     >
                         {{ tag }}
                     </span>
-                </div>
+                </div> -->
             </div>
 
             <div class="result__actions">

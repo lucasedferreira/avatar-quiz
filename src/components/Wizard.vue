@@ -40,9 +40,7 @@
                     :class="{
                         'wizard__button--disabled': quizStore.isTransitioning,
                     }"
-                    :disabled="
-                        quizStore.isTransitioning
-                    "
+                    :disabled="quizStore.isTransitioning"
                     @click="handleNext"
                     ref="nextButtonRef"
                 >
@@ -60,9 +58,7 @@
                 </button>
             </div>
 
-            <p class="wizard__privacy">
-                🔒 Seus dados não são coletados.
-            </p>
+            <p class="wizard__privacy">🔒 Seus dados não são coletados.</p>
         </div>
     </div>
 </template>
@@ -225,7 +221,6 @@ watch(
 <style lang="scss" scoped>
 .wizard {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f5f5 0%, #e8eaf6 100%);
     padding: 2rem 1rem;
 
     @media (max-width: 768px) {
