@@ -58,7 +58,7 @@
                 </button>
             </div>
 
-            <p class="wizard__privacy">🔒 Seus dados não são coletados.</p>
+            <p class="wizard__privacy">🔒 Apenas seu nome será coletado.</p>
         </div>
     </div>
 </template>

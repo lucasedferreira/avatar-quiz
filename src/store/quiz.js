@@ -1,11 +1,6 @@
 import { defineStore } from 'pinia';
 import { quizApi } from '../api/quizApi';
 
-const THRESHOLD_STRONG_SINGLE = 60;      // Mínimo para curso dominante
-const THRESHOLD_STRONG_GAP = 26;         // Diferença mínima entre 1º e 2º
-const THRESHOLD_CLOSE_COMBINED = 25;     // Diferença máxima para avatar combinado
-const THRESHOLD_THREE_WAY_TIE = 12;      // Faixa máxima para empate triplo
-
 export const useQuizStore = defineStore('quiz', {
     state: () => ({
         sessionId: null,
@@ -233,116 +228,74 @@ export const useQuizStore = defineStore('quiz', {
             }
         },
 
-        // substitua/atualize calculateAvatar por esta versão (usa o parâmetro scores quando passado)
         async calculateAvatar(scoresParam) {
-            console.log('Scores:', scoresParam);
+            // thresholds
+            const STRONG_SINGLE_PCT = 50;   // top >= 50%
+            const STRONG_GAP_PCT = 15;      // gap >= 15% -> dominante
+            const THREE_WAY_TIE_PCT = 10;   // top - third <= 10% -> neutro
+            const COMBINED_TOP_MIN = 35;    // top >= 35% and
+            const COMBINED_SECOND_MIN = 30; // second >= 30% -> combo
+            const COMBINED_MAX_GAP = 20;    // or gap <= 20% -> combo
 
-            // 1) obter scores brutos: usa scoresParam se fornecido, senão soma a partir de this.answers
-            let S_pcp = 0, S_ds = 0, S_ma = 0;
+            // extrair brutos
+            const S_pcp = Number(scoresParam?.pcp ?? 0);
+            const S_ds = Number(scoresParam?.ds ?? 0);
+            const S_ma = Number(scoresParam?.ma ?? 0);
 
-            if (scoresParam && (typeof scoresParam.pcp !== 'undefined' || typeof scoresParam.PCP !== 'undefined')) {
-                // aceitar tanto pcp/ds/ma (minúsculo) quanto PCP/DS/MA
-                S_pcp = Number(scoresParam.pcp ?? scoresParam.PCP) || 0;
-                S_ds = Number(scoresParam.ds ?? scoresParam.DS) || 0;
-                S_ma = Number(scoresParam.ma ?? scoresParam.MA) || 0;
-            } else {
-                // calcular a partir das respostas armazenadas (compatível com versão 1)
-                Object.values(this.answers).forEach(a => {
-                    S_pcp += Number(a.weight_pcp || 0);
-                    S_ds += Number(a.weight_ds || 0);
-                    S_ma += Number(a.weight_ma || 0);
-                });
+            const sum = S_pcp + S_ds + S_ma;
+            if (sum === 0) {
+                // fallback neutral
+                const avatarsResp = await quizApi.getAvatars();
+                return avatarsResp.data.find(a => a.id === 7) || avatarsResp.data[0] || { id: null };
             }
 
-            // 2) normalizar para [0,100]
-            const min = Math.min(S_pcp, S_ds, S_ma);
-            const max = Math.max(S_pcp, S_ds, S_ma);
-            let norm = { PCP: S_pcp, DS: S_ds, MA: S_ma };
-
-            if (max === min) {
-                norm = { PCP: 50, DS: 50, MA: 50 };
-            } else {
-                norm.PCP = ((S_pcp - min) / (max - min)) * 100;
-                norm.DS = ((S_ds - min) / (max - min)) * 100;
-                norm.MA = ((S_ma - min) / (max - min)) * 100;
-            }
-
-            // ordenar por score normalizado (desc)
-            const sorted = Object.entries(norm).sort((a, b) => b[1] - a[1]);
-            console.log('Normalized Scores:', sorted);
-            const [top, second, third] = sorted;
-            const S_top = top[1], S_second = second[1], S_third = third[1];
-            const S_range = S_top - S_third;
-
-            // 3) buscar lista de avatares no backend
-            const avatarsResp = await quizApi.getAvatars();
-            const avatars = avatarsResp.data || [];
-
-            // helpers de matching (normaliza related_courses)
-            const normalizeCourses = arr => (Array.isArray(arr) ? arr.map(x => String(x).toLowerCase()) : []);
-            const findSingleAvatar = (courseLower) => avatars.find(a => {
-                const rc = normalizeCourses(a.related_courses);
-                return rc.length === 1 && rc[0] === courseLower;
-            });
-            const findComboAvatar = (courseA, courseB) => {
-                const wanted = [courseA, courseB].map(c => c.toLowerCase()).sort().join('_');
-                // tentativa 1: campo id/combo
-                const byId = avatars.find(a => String(a.id).toLowerCase() === wanted || String(a.id).toLowerCase() === `${wanted}`);
-                if (byId) return byId;
-                // tentativa 2: related_courses contém ambos
-                return avatars.find(a => {
-                    const rc = normalizeCourses(a.related_courses);
-                    if (rc.length !== 2) return false;
-                    return [courseA.toLowerCase(), courseB.toLowerCase()].every(c => rc.includes(c));
-                });
+            const pct = {
+                PCP: (S_pcp / sum) * 100,
+                DS: (S_ds / sum) * 100,
+                MA: (S_ma / sum) * 100
             };
-            const findNeutral = () => avatars.find(a =>
-                a.id === 7 ||
-                String(a.id).toLowerCase() === 'neutral' ||
-                (Array.isArray(a.related_courses) && a.related_courses.length === 3) ||
-                (a.related_courses && normalizeCourses(a.related_courses).includes('neutral'))
-            );
 
+            const sorted = Object.entries(pct).sort((a, b) => b[1] - a[1]);
+            console.log(`sorted`, sorted);
+            const [top, second, third] = sorted;
             const topCourse = top[0].toLowerCase();
             const secondCourse = second[0].toLowerCase();
+            const topPct = top[1], secondPct = second[1], thirdPct = third[1];
 
-            // Regra 1: forte single
-            if (S_top >= THRESHOLD_STRONG_SINGLE && (S_top - S_second) >= THRESHOLD_STRONG_GAP) {
-                const single = findSingleAvatar(topCourse);
-                if (single) return single;
+            // buscar avatares
+            const avatarsResp = await quizApi.getAvatars();
+            const avatars = avatarsResp.data || [];
+            const normalizeCourses = arr => (Array.isArray(arr) ? arr.map(x => String(x).toLowerCase()) : []);
+            const findSingle = (c) => avatars.find(a => {
+                const rc = normalizeCourses(a.related_courses);
+                return rc.length === 1 && rc[0] === c;
+            });
+            const findCombo = (a, b) => avatars.find(av => {
+                const rc = normalizeCourses(av.related_courses).sort();
+                return rc.length === 2 && [a, b].map(x => x.toLowerCase()).sort().every((v, i) => v === rc[i]);
+            });
+            const findNeutral = () => avatars.find(a => a.id === 7);
+
+            // regras (proporção)
+            if (topPct >= STRONG_SINGLE_PCT && (topPct - secondPct) >= STRONG_GAP_PCT) {
+                return findSingle(topCourse) || findNeutral() || avatars[0];
             }
 
-            // Regra 2: empate triplo -> neutro
-            if (S_range <= THRESHOLD_THREE_WAY_TIE) {
-                const n = findNeutral();
-                if (n) return n;
+            if ((topPct - thirdPct) <= THREE_WAY_TIE_PCT) {
+                return findNeutral() || avatars[0];
             }
 
-            // Regra 3: dois próximos -> avatar combinado
-            if (Math.abs(S_top - S_second) <= THRESHOLD_CLOSE_COMBINED &&
-                S_third <= (S_top - THRESHOLD_STRONG_GAP)) {
-                const combo = findComboAvatar(topCourse, secondCourse);
+            if ((topPct >= COMBINED_TOP_MIN && secondPct >= COMBINED_SECOND_MIN) ||
+                ((topPct - secondPct) <= COMBINED_MAX_GAP)) {
+                // combo
+                const combo = findCombo(topCourse, secondCourse);
                 if (combo) return combo;
-                const n = findNeutral();
-                if (n) return n;
+                // fallback: if no exact combo avatar, fallback to top single then neutral
+                return findSingle(topCourse) || findNeutral() || avatars[0];
             }
 
-            // Caso ambíguo: tentar retorno combinado quando gap pequeno
-            if ((S_top - S_second) <= 11) {
-                const combo = findComboAvatar(topCourse, secondCourse);
-                if (combo) return combo;
-                const single = findSingleAvatar(topCourse);
-                if (single) return single;
-            }
-
-            // Fallback: avatar do top course (single) ou neutro ou primeiro avatar
-            const fallbackSingle = findSingleAvatar(topCourse);
-            if (fallbackSingle) return fallbackSingle;
-
-            const n = findNeutral();
-            if (n) return n;
-
-            return avatars[0] || { id: null, name: 'fallback' };
+            // fallback single
+            return findSingle(topCourse) || findNeutral() || avatars[0];
         },
 
         resetQuiz() {
