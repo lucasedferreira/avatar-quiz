@@ -235,6 +235,7 @@ export const useQuizStore = defineStore('quiz', {
 
         // substitua/atualize calculateAvatar por esta versão (usa o parâmetro scores quando passado)
         async calculateAvatar(scoresParam) {
+            console.log('Scores:', scoresParam);
 
             // 1) obter scores brutos: usa scoresParam se fornecido, senão soma a partir de this.answers
             let S_pcp = 0, S_ds = 0, S_ma = 0;
@@ -268,6 +269,7 @@ export const useQuizStore = defineStore('quiz', {
 
             // ordenar por score normalizado (desc)
             const sorted = Object.entries(norm).sort((a, b) => b[1] - a[1]);
+            console.log('Normalized Scores:', sorted);
             const [top, second, third] = sorted;
             const S_top = top[1], S_second = second[1], S_third = third[1];
             const S_range = S_top - S_third;
