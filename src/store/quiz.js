@@ -102,7 +102,7 @@ export const useQuizStore = defineStore('quiz', {
         },
 
         numberToLetter(num) {
-            return String.fromCharCode(97 + num);
+            return String.fromCharCode(96 + num);
         },
 
         async startQuiz(studentData) {
