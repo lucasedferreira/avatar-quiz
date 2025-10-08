@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { quizApi } from '../api/quizApi';
 
-const THRESHOLD_STRONG_SINGLE = 55;      // Mínimo para curso dominante
-const THRESHOLD_STRONG_GAP = 12;         // Diferença mínima entre 1º e 2º
-const THRESHOLD_CLOSE_COMBINED = 7;      // Diferença máxima para avatar combinado
-const THRESHOLD_THREE_WAY_TIE = 10;      // Faixa máxima para empate triplo
+const THRESHOLD_STRONG_SINGLE = 60;      // Mínimo para curso dominante
+const THRESHOLD_STRONG_GAP = 26;         // Diferença mínima entre 1º e 2º
+const THRESHOLD_CLOSE_COMBINED = 25;     // Diferença máxima para avatar combinado
+const THRESHOLD_THREE_WAY_TIE = 12;      // Faixa máxima para empate triplo
 
 export const useQuizStore = defineStore('quiz', {
     state: () => ({
