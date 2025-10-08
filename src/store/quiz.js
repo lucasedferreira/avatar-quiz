@@ -230,7 +230,7 @@ export const useQuizStore = defineStore('quiz', {
 
         async calculateAvatar(scoresParam) {
             // thresholds
-            const STRONG_SINGLE_PCT = 50;   // top >= 50%
+            const STRONG_SINGLE_PCT = 42;   // top >= 42%
             const STRONG_GAP_PCT = 15;      // gap >= 15% -> dominante
             const THREE_WAY_TIE_PCT = 10;   // top - third <= 10% -> neutro
             const COMBINED_TOP_MIN = 35;    // top >= 35% and
