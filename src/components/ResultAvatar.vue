@@ -60,8 +60,7 @@
 
             <div class="result__info">
                 <p class="result__privacy">
-                    🔒 <strong>Privacidade garantida:</strong> Nenhum dado foi
-                    coletado ou enviado.
+                    🔒 <strong>Privacidade garantida:</strong> Apenas seu nome foi coletado.
                 </p>
 
                 <button class="result__restart" @click="handleRestart">

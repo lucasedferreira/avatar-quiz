@@ -39,7 +39,7 @@
                     </svg>
                 </button>
                 <p class="onboarding__privacy">
-                    🔒 Nenhum dado é coletado ou enviado.
+                    🔒 Apenas seu nome será coletado.
                 </p>
             </div>
         </div>
