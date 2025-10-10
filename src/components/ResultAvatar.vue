@@ -7,28 +7,29 @@
             </div>
 
             <div class="result__avatar" ref="avatarRef">
-                <div class="result__avatar-image">
-                    <div class="result__avatar-placeholder">
-                        <span class="result__avatar-emoji">{{
-                            getAvatarEmoji()
-                        }}</span>
-                    </div>
+                <div
+                    class="result__avatar-image"
+                    :style="{ backgroundColor: getAvatarColor(avatar.id) }"
+                >
+                    <img
+                        :src="`/src/assets/avatars/avatar-${avatar.id}.png`"
+                        :alt="avatar.name"
+                        class="result__avatar-img"
+                    />
                 </div>
 
                 <h2 class="result__avatar-name">{{ avatar.name }}</h2>
+
                 <p class="result__avatar-description">
                     {{ avatar.description }}
                 </p>
 
-                <!-- <div class="result__avatar-tags">
-                    <span
-                        v-for="tag in avatar.tags.split(', ')"
-                        :key="tag"
-                        class="result__tag"
-                    >
-                        {{ tag }}
-                    </span>
-                </div> -->
+                <p
+                    v-if="avatar.message"
+                    class="result__avatar-message"
+                >
+                    {{ avatar.message }}
+                </p>
             </div>
 
             <div class="result__actions">
@@ -84,64 +85,21 @@ const avatarRef = ref(null);
 
 const avatar = quizStore.resultAvatar;
 
-const getAvatarEmoji = () => {
-    const emojiMap = {
-        pcp: "⚙️",
-        ds: "💻",
-        ma: "🔧",
-        ds_pcp: "📊",
-        ma_pcp: "🏭",
-        ds_ma: "🤖",
-        neutral: "🧭",
+// Cores de fundo para o círculo do avatar
+const getAvatarColor = (id) => {
+    const colorMap = {
+        pcp: "#FFE082",     // amarelo
+        ds: "#90CAF9",      // azul claro
+        ma: "#A5D6A7",      // verde
+        ds_pcp: "#F48FB1",  // rosa
+        ma_pcp: "#CE93D8",  // lilás
+        ds_ma: "#80CBC4",   // turquesa
+        neutral: "#B0BEC5", // cinza neutro
     };
-    return emojiMap[avatar.id] || "🎯";
+    return colorMap[id] || "#E0E0E0";
 };
 
-const launchConfetti = () => {
-    const duration = 3000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-    }
-
-    const interval = setInterval(() => {
-        const timeLeft = animationEnd - Date.now();
-
-        if (timeLeft <= 0) {
-            return clearInterval(interval);
-        }
-
-        const particleCount = 50 * (timeLeft / duration);
-
-        // left
-        confetti({
-            ...defaults,
-            particleCount,
-            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-            colors: ["#0047B6", "#42A5F5", "#FFD700", "#FF6B6B", "#4CAF50"],
-        });
-
-        // Right
-        confetti({
-            ...defaults,
-            particleCount,
-            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-            colors: ["#0047B6", "#42A5F5", "#FFD700", "#FF6B6B", "#4CAF50"],
-        });
-    }, 250);
-
-    setTimeout(() => {
-        confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ["#0047B6", "#42A5F5", "#FFD700", "#FF6B6B", "#4CAF50"],
-        });
-    }, 500);
-};
-
+// Reiniciar quiz com animação
 const handleRestart = () => {
     gsap.to(containerRef.value, {
         opacity: 0,
@@ -153,11 +111,9 @@ const handleRestart = () => {
     });
 };
 
+// Animações de entrada e confete
 onMounted(() => {
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     gsap.from(containerRef.value, {
         opacity: 0,
@@ -178,6 +134,36 @@ onMounted(() => {
         launchConfetti();
     }, 500);
 });
+
+const launchConfetti = () => {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+
+        const particleCount = 50 * (timeLeft / duration);
+
+        confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+            colors: ["#0047B6", "#42A5F5", "#FFD700", "#FF6B6B", "#4CAF50"],
+        });
+        confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+            colors: ["#0047B6", "#42A5F5", "#FFD700", "#FF6B6B", "#4CAF50"],
+        });
+    }, 250);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -236,33 +222,26 @@ onMounted(() => {
     &__avatar {
         text-align: center;
         padding: 2rem;
-        background: linear-gradient(
-            135deg,
-            lighten($primary-color, 45%) 0%,
-            lighten($primary-color, 48%) 100%
-        );
+        background: white;
         border-radius: 24px;
         margin-bottom: 2rem;
     }
 
     &__avatar-image {
-        margin-bottom: 1.5rem;
-    }
-
-    &__avatar-placeholder {
         width: 160px;
         height: 160px;
-        background: linear-gradient(
-            135deg,
-            $primary-color 0%,
-            darken($primary-color, 10%) 100%
-        );
         border-radius: 50%;
-        margin: 0 auto;
+        margin: 0 auto 1.5rem auto;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
         box-shadow: 0 12px 40px rgba(0, 71, 182, 0.25);
+        transition: transform 0.4s ease, opacity 0.4s ease;
+
+        &:hover {
+            transform: scale(1.05);
+        }
 
         @media (max-width: 480px) {
             width: 120px;
@@ -270,12 +249,10 @@ onMounted(() => {
         }
     }
 
-    &__avatar-emoji {
-        font-size: 5rem;
-
-        @media (max-width: 480px) {
-            font-size: 3.5rem;
-        }
+    &__avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     &__avatar-name {
@@ -293,28 +270,21 @@ onMounted(() => {
         font-size: 1.125rem;
         color: $text-medium;
         line-height: 1.6;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
 
         @media (max-width: 480px) {
             font-size: 1rem;
         }
     }
 
-    &__avatar-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
-    }
-
-    &__tag {
-        background: white;
-        color: $primary-color;
-        padding: 0.375rem 0.875rem;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        border: 1px solid rgba(0, 71, 182, 0.2);
+    &__avatar-message {
+        font-size: 1rem;
+        color: $text-dark;
+        line-height: 1.6;
+        background: #f9f9f9;
+        border-radius: 12px;
+        padding: 1rem;
+        font-style: italic;
     }
 
     &__actions {
