@@ -228,8 +228,8 @@ const launchConfetti = () => {
     }
 
     &__avatar-image {
-        width: 160px;
-        height: 160px;
+        width: 300px;
+        height: 300px;
         border-radius: 50%;
         margin: 0 auto 1.5rem auto;
         display: flex;
@@ -244,8 +244,8 @@ const launchConfetti = () => {
         }
 
         @media (max-width: 480px) {
-            width: 120px;
-            height: 120px;
+            width: 200px;
+            height: 200px;
         }
     }
 
